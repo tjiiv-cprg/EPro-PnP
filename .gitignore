@@ -1,0 +1,12 @@
+.idea/
+work_dirs/
+.vscode/
+tmp/
+data/
+checkpoints/
+*.so
+*.patch
+__pycache__/
+*.egg-info/
+viz/
+submit/
