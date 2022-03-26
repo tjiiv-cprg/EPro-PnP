@@ -52,7 +52,7 @@ Note that our data converter is different from MMDetection3D, although they seem
 
 ## Models
 
-Checkpoints of all models are available for download at [[Google Drive](https://drive.google.com/drive/folders/1AWRg09fkt66I8rgrp33Lwb9l6-D6Gjrg) | [Baidu Pan](https://pan.baidu.com/s/1j7xgkwD-rcxHMaNupRP_bQ?pwd=cx5b#list/path=%2FEPro-PnP-Det)]. 
+Checkpoints of all models are available for download at [[Google Drive](https://drive.google.com/drive/folders/1AWRg09fkt66I8rgrp33Lwb9l6-D6Gjrg) | [Baidu Pan](https://pan.baidu.com/s/1j7xgkwD-rcxHMaNupRP_bQ?pwd=cx5b#list/path=%2FEPro-PnP-Det)].
 
 ### EPro-PnP-Det v1
 
@@ -77,12 +77,68 @@ Here are some of our recent updates (mainly hyperparameter tuning) aiming at imp
 
 ## Test
 
-To be added.
+To test and evaluate on the validation split, run:
+
+```bash
+python test.py /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --val-set --eval nds
+```
+
+You can specify the GPUs to use by adding the `--gpu-ids` argument, e.g.:
+
+```bash
+python test.py /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --val-set --eval nds --gpu-ids 0 1 2 3  # distributed test on 4 GPUs
+```
+
+To enable test-time augmentation (TTA), edit the configuration file and replace the string `flip=False` with `flip=True`.
+
+To test on the test split and save the detection results, run:
+
+```bash
+python test.py /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --format-only --eval-options jsonfile_prefix=/PATH/TO/OUTPUT/DIRECTORY
+```
+
+You can append the argument `--show-dir /PATH/TO/OUTPUT/DIRECTORY` to save visualized results.
+
+To view other testing options, run:
+
+```bash
+python test.py -h
+```
 
 ## Train
 
-To be added.
+Run:
+
+```bash
+python train.py /PATH/TO/CONFIG --gpu-ids 0 1 2 3
+```
+
+Note that the total batch size is determined by the number of GPUs you specified. For EPro-PnP-Det v1 we use 4 GPUs, each processing 3 images. For EPro-PnP-Det v1b we use 2 GPUs, each processing 6 images. For these configurations we recommend GPUs with at least 24 GB of VRAM. You may edit the `samples_per_gpu` option in the config file to vary the number of images per GPU.
+
+To view other training options, run:
+
+```bash
+python train.py -h
+```
+
+By default, logs and checkpoints will be saved to `EPro-PnP-Det/work_dirs`. You can run TensorBoard to plot the logs:
+
+```bash
+tensorboard --logdir work_dirs
+```
 
 ## Inference Demo
 
-To be added.
+We provide a demo script to perform inference on images in a directory and save the visualized results. Example:
+
+```bash
+python demo/infer_imgs.py demo/ /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --intrinsic demo/nus_cam_front.csv --show-views 3d bev mc
+```
+
+The resulting visualizations will be saved into `demo/viz`.
+
+Another useful script is for visualizing an entire sequences from the nuScenes dataset, so that you can create video clips from the frames. Run the following command for more information:
+
+```bash
+python demo/infer_nuscenes_sequence.py -h
+```
