@@ -27,12 +27,16 @@ pose distribution.
 
 We release two distinct networks trained with EPro-PnP:
 
-- **[EPro-PnP-6DoF](EPro-PnP-6DoF) for 6DoF pose estimation**
+- **[EPro-PnP-6DoF](EPro-PnP-6DoF) for 6DoF pose estimation**<br>
   <img src="EPro-PnP-6DoF/viz.gif" width="500" alt=""/>
 
 - **[EPro-PnP-Det](EPro-PnP-Det) for 3D object detection**
 
   <img src="EPro-PnP-Det/resources/viz.gif" width="500" alt=""/>
+
+## Use EPro-PnP in Your Own Model
+
+To be added.
 
 ## Citation
 

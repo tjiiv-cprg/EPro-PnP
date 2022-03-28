@@ -74,7 +74,6 @@ Here are some of our recent updates (mainly hyperparameter tuning) aiming at imp
 | [epropnp_det_v1b_220312](configs/epropnp_det_v1b_220312.py) | Compact network (in supplementary), N=128 | ✗ | 0.434 (Val) |
 | [epropnp_det_v1b_220312](configs/epropnp_det_v1b_220312.py) | +TTA | ✓ | 0.446 (Val) |
 
-
 ## Test
 
 To test and evaluate on the validation split, run:
@@ -132,12 +131,12 @@ tensorboard --logdir work_dirs
 We provide a demo script to perform inference on images in a directory and save the visualized results. Example:
 
 ```bash
-python demo/infer_imgs.py demo/ /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --intrinsic demo/nus_cam_front.csv --show-views 3d bev mc
+python demo/infer_imgs.py /PATH/TO/DIRECTORY /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --intrinsic demo/nus_cam_front.csv --show-views 3d bev mc
 ```
 
-The resulting visualizations will be saved into `demo/viz`.
+The resulting visualizations will be saved into `/PATH/TO/DIRECTORY/viz`.
 
-Another useful script is for visualizing an entire sequences from the nuScenes dataset, so that you can create video clips from the frames. Run the following command for more information:
+Another useful script is for visualizing an entire sequence from the nuScenes dataset, so that you can create video clips from the frames. Run the following command for more information:
 
 ```bash
 python demo/infer_nuscenes_sequence.py -h

@@ -51,7 +51,7 @@ pip install -v -e .
 To verify the installation, you can download one of the checkpoint files [[Google Drive](https://drive.google.com/drive/folders/1AWRg09fkt66I8rgrp33Lwb9l6-D6Gjrg) | [Baidu Pan](https://pan.baidu.com/s/1j7xgkwD-rcxHMaNupRP_bQ?pwd=cx5b#list/path=%2FEPro-PnP-Det)] and run the inference demo:
 
 ```bash
-python demo/infer_imgs.py demo/ configs/epropnp_det_coord_regr.py /PATH/TO/CHECKPOINT --show-views 3d bev mc
+python demo/infer_imgs.py demo/ /PATH/TO/CONFIG /PATH/TO/CHECKPOINT --show-views 3d bev mc
 ```
 
 The resulting visualizations will be saved into `demo/viz`.
