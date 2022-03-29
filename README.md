@@ -2,7 +2,7 @@
 
 **EPro-PnP: Generalized End-to-End Probabilistic Perspective-n-Points for Monocular Object Pose Estimation**
 <br>
-In CVPR 2022. [[paper](https://arxiv.org/pdf/2203.13254.pdf)]
+In CVPR 2022 (Oral). [[paper](https://arxiv.org/pdf/2203.13254.pdf)]
 <br>
 Hansheng Chen\*<sup>1,2</sup>, Pichao Wang†<sup>2</sup>, Fan Wang<sup>2</sup>, Wei Tian†<sup>1</sup>, Lu Xiong<sup>1</sup>, Hao Li<sup>2</sup>
 
