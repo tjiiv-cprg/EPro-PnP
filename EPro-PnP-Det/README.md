@@ -18,7 +18,7 @@ EPro-PnP-Det extends the one-stage detector FCOS3D with a deformable corresponde
 
 Please refer to [INSTALL.md](INSTALL.md).
 
-## Data preparation
+## Data Preparation
 
 To train and evaluate the model, download the [full nuScenes dataset (v1.0)](https://www.nuscenes.org/nuscenes#download). Only the keyframe subset and metadata are required.
 

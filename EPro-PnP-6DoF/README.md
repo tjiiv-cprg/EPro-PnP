@@ -35,7 +35,7 @@ conda install pytorch==1.5.0 torchvision==0.6.0 cudatoolkit=10.2 -c pytorch
 pip install opencv-python==4.5.1.48 pyro-ppl==1.4.0 PyYAML==5.4.1 matplotlib termcolor plyfile easydict scipy progress numba tensorboardx
 ```
 
-## Data preparation
+## Data Preparation
 
 Please refer to [this link](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi#prepare-the-dataset).
 
@@ -43,7 +43,7 @@ Please refer to [this link](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi
 
 ### EPro-PnP-6DoF v1b
 
-After finishing the experiments in the main paper (**models v1**), we have heavily refactored the code of the EPro-PnP layer, resulting in slightly different numerical behavior. We release the models trained with the current refactored code (**models v1b**) at [[Google Drive](https://drive.google.com/drive/folders/1Jem2XsdHxr3ETRsZYqyTUmo5F3TmJGfO?usp=sharing) | [Baidu Pan](https://pan.baidu.com/s/19QxntwH22O4g2oYJWMBsLg?pwd=afa8)]. The results of both versions are shown below.
+Since the experiments in the main paper (**models v1**), we have heavily refactored the code of the EPro-PnP layer, resulting in slightly different numerical behavior. We release the models trained with the current refactored code (**models v1b**) at [[Google Drive](https://drive.google.com/drive/folders/1Jem2XsdHxr3ETRsZYqyTUmo5F3TmJGfO?usp=sharing) | [Baidu Pan](https://pan.baidu.com/s/19QxntwH22O4g2oYJWMBsLg?pwd=afa8)]. The results of both versions are shown below.
 
 | Config | Description | ADD 0.02d | ADD 0.05d | ADD 0.1d | Mean |
 | :--- | :--- | :--- | :--- | :--- | :--- |

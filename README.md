@@ -36,7 +36,7 @@ We release two distinct networks trained with EPro-PnP:
 
 ## Use EPro-PnP in Your Own Model
 
-To be added.
+We provide a [demo](demo/fit_identity.ipynb) on the usage of the EPro-PnP layer.
 
 ## Citation
 
