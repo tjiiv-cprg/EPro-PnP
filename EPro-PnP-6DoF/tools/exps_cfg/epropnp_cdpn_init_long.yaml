@@ -1,0 +1,115 @@
+# Copyright (C) 2010-2021 Alibaba Group Holding Limited.
+# This file is modified from
+# https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi
+
+pytorch:
+  exp_id: 'epropnp_cdpn_init_long'
+  task: 'rot' # 'rot | trans | rot_trans'
+  cfg: ''           # path to configure file
+  gpu: 0
+  threads_num: 12
+  debug: False
+  save_mode: 'all'  # 'all' | 'best', save all models or only save the best model
+  load_model: '../checkpoints/cdpn_stage_1.pth'
+  test: False
+  demo: False
+
+dataset:
+  name: 'lm'     # 'lm' | 'lmo'
+  classes: 'all'    # 'all' represents train on all classes, or you can list specific classes for training
+  # - 'ape'
+  # - 'benchvise'
+  # - 'camera'
+  # - 'can'
+  # - 'cat'
+  # - 'driller'
+  # - 'duck'
+  # - 'eggbox'
+  # - 'glue'
+  # - 'holepuncher'
+  # - 'iron'
+  # - 'lamp'
+  # - 'phone'
+  img_type: 'real_imgn'    # 'real' | 'imgn' | 'real_imgn'
+  syn_num: 1000
+  syn_samp_type: 'uniform' # 'uniform' | 'random'
+
+dataiter:
+  inp_res: 256
+  out_res: 64
+  dzi: True
+  denoise_coor: True
+
+augment:
+  change_bg_ratio: 0.5
+  pad_ratio: 1.5
+  scale_ratio: 0.25
+  shift_ratio: 0.25
+
+network:
+  # ------ backbone -------- #
+  arch: 'resnet' # 'hg' | 'hg_refiner' | 'resnet' | 'resnet_refiner'
+  back_freeze: False
+  back_input_channel: 3 # # channels of backbone's input
+  # hourglass backbone
+  nFeats: 256 # # features in the hourglass'
+  nStack: 4   # # hourglasses to stack
+  nModules: 2 # # residual modules at each hourglass
+  # resnet backbone
+  numBackLayers: 34 # 18 | 34 | 50 | 101 | 152
+  back_filters: 256 # number of filters for each layer
+  # ------ rotation head -------- #
+  rot_head_freeze: False
+  rot_layers_num: 3
+  rot_filters_num: 256 # number of filters for each layer
+  rot_conv_kernel_size: 3 # kernel size for hidden layers
+  rot_output_conv_kernel_size: 1 # kernel size for output layer
+  rot_output_channels: 5 # # channels of output
+  # ------ translation head -------- #
+  trans_head_freeze: True
+  trans_layers_num: 3
+  trans_filters_num: 256
+  trans_conv_kernel_size: 3
+  trans_output_channels: 3
+
+train:
+  begin_epoch: 0
+  end_epoch: 320
+  test_interval: 10
+  train_batch_size: 32
+  lr_backbone: 1e-4
+  lr_rot_head: 1e-4
+  lr_trans_head: 1e-4
+  lr_epoch_step:
+  - 100
+  - 200
+  - 300
+  lr_factor: 0.1
+  optimizer_name: 'RMSProp'
+  warmup_lr: 1e-5
+  warmup_step: 500
+  momentum: 0.0
+  weightDecay: 0.0
+  alpha: 0.99
+  epsilon: 1e-8
+
+loss:
+  # coordinate regression loss
+  rot_loss_type: 'L1'
+  rot_mask_loss: True
+  rot_loss_weight: 1
+  # Monte Carlo loss
+  mc_loss_weight: 0.02  # this value is small because the actual scale of the loss is large
+  # derivative regularization loss
+  t_loss_weight: 0.1
+  r_loss_weight: 0.1
+
+test:
+  test_mode: 'all_fast' # 'pose' | 'add' | 'proj' | 'all' | 'pose_fast' | 'add_fast' | 'proj_fast' | 'all_fast'
+                    # 'pose' means "#cm, #degrees", 'all' means evaluate on all metrics,
+                    # 'fast' means the test batch size equals training batch size, otherwise 1
+  cache_file: ''
+  ignore_cache_file: True
+  detection: 'FasterRCNN'
+  disp_interval: 50
+  vis_demo: False
