@@ -1143,23 +1143,23 @@ def obj_sampler(num_obj_samples,
             (sample_point_inds_uniform, sample_point_inds_replace), dim=0)
         sample_gt_inds = flatten_gt_inds[sample_point_inds]
         sample_prob_weights = prob[sample_point_inds] / prob_mix[sample_point_inds]
+
+        gt_mask = sample_gt_inds == torch.arange(
+            sample_gt_inds.max() + 1, device=sample_gt_inds.device)[:, None]  # (num_gt, num_obj_sample)
+
+        gt_prob_sum = (sample_prob_weights * gt_mask).sum(dim=1)
+        gt_weights = 1 / gt_prob_sum.clamp(min=eps)
+        sample_weights = sample_prob_weights * gt_weights[sample_gt_inds]
+        sample_weights /= sample_weights.mean().clamp(min=eps)
+
+        gt_counts = torch.count_nonzero(gt_mask, dim=1)
+        gt_weights = 1 / gt_counts.clamp(min=1)
+        sample_uniform_weights = gt_weights[sample_gt_inds]
+        sample_uniform_weights /= sample_uniform_weights.mean().clamp(min=eps)
+
     else:
-        sample_point_inds = flatten_gt_inds[[]]
-        sample_gt_inds = flatten_gt_inds[[]]
-        sample_prob_weights = prob[[]]
-
-    gt_mask = sample_gt_inds == torch.arange(
-        sample_gt_inds.max() + 1, device=sample_gt_inds.device)[:, None]  # (num_gt, num_obj_sample)
-
-    gt_prob_sum = (sample_prob_weights * gt_mask).sum(dim=1)
-    gt_weights = 1 / gt_prob_sum.clamp(min=eps)
-    sample_weights = sample_prob_weights * gt_weights[sample_gt_inds]
-    sample_weights /= sample_weights.mean().clamp(min=eps)
-
-    gt_counts = torch.count_nonzero(gt_mask, dim=1)
-    gt_weights = 1 / gt_counts.clamp(min=1)
-    sample_uniform_weights = gt_weights[sample_gt_inds]
-    sample_uniform_weights /= sample_uniform_weights.mean().clamp(min=eps)
+        sample_point_inds = sample_gt_inds = flatten_gt_inds[[]]
+        sample_weights = sample_uniform_weights = prob[[]]
 
     ret = (sample_gt_inds, sample_weights, sample_uniform_weights)
     extra_ret = []
