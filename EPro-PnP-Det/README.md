@@ -25,7 +25,7 @@ To train and evaluate the model, download the [full nuScenes dataset (v1.0)](htt
 Create the directory `EPro-PnP-Det/data`. Extract the downloaded archives and symlink the dataset root to `EPro-PnP-Det/data/nuscenes` according to the following structure. If your folder structure is different, you may need to change the corresponding paths in config files.
 
 ```
-EPro-PnP-Det
+EPro-PnP-Det/
 ├── configs/
 ├── data/
 │   └── nuscenes/
