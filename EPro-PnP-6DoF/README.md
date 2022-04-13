@@ -37,7 +37,7 @@ pip install opencv-python==4.5.1.48 pyro-ppl==1.4.0 PyYAML==5.4.1 matplotlib ter
 
 ## Data Preparation
 
-Please refer to [this link](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi#prepare-the-dataset) for instructions. Afterwards, the dataset folders should be structured as follows:
+Please refer to [this link](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi#prepare-the-dataset) for instructions. In case you have trouble downloading the LineMOD dataset, we have uploaded a copy [here](https://mega.nz/folder/w0sTxbYa#0w-huVv5gK953mO-eGpYVg). Afterwards, the dataset folders should be structured as follows:
 
 ```
 EPro-PnP-6DoF/
