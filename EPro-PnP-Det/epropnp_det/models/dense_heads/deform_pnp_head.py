@@ -135,6 +135,8 @@ class DefromPnPHead(BaseDenseHead):
                  cost_fun=dict(
                      type='AdaptiveHuberPnPCost',
                      relative_delta=0.5),
+                 use_cls_emb=False,
+                 dim_cls_agnostic=False,
                  pred_velo=True,
                  pred_attr=True,
                  num_attrs=9,
@@ -157,6 +159,8 @@ class DefromPnPHead(BaseDenseHead):
         self.det_lvl_range = det_lvl_range
         self.dense_channels = dense_channels
         self.embed_dims = embed_dims
+        self.use_cls_emb = use_cls_emb
+        self.dim_cls_agnostic = dim_cls_agnostic
         self.pred_velo = pred_velo
         self.pred_attr = pred_attr
         self.num_attrs = num_attrs
@@ -287,9 +291,12 @@ class DefromPnPHead(BaseDenseHead):
             pred_fc.append(nn.Linear(self.embed_dims, self.embed_dims))
             pred_fc.append(nn.ReLU())
         self.pred_fc = nn.Sequential(*pred_fc)
-        self.dim_branch = nn.Linear(self.embed_dims, self.num_classes * 3)  # [l, h, w]
+        self.dim_branch = nn.Linear(
+            self.embed_dims, 3 if self.dim_cls_agnostic else self.num_classes * 3)  # [l, h, w]
         self.score_branch = nn.Linear(self.embed_dims, 1)
         self.scale_branch = nn.Linear(self.embed_dims, 2)
+        if self.use_cls_emb:
+            self.cls_emb = nn.Parameter(torch.zeros([self.num_classes, self.embed_dims]))
         if self.pred_velo:
             self.velo_branch = nn.Linear(self.embed_dims, 2)
         if self.pred_attr:
@@ -424,8 +431,14 @@ class DefromPnPHead(BaseDenseHead):
         head_emb_dim = self.embed_dims // self.num_heads
         num_obj = obj_img_inds.size(0)
         obj_flips = img_flips[obj_img_inds]
+        if self.use_cls_emb:
+            obj_emb = obj_emb + self.cls_emb[obj_labels]
 
         # deformable attn & sampling
+        if obj_center.size(-1) > 2:  # offset_cls_agnostic=False
+            obj_center = obj_center.reshape(
+                num_obj, self.num_classes, 2
+            )[torch.arange(num_obj, device=obj_center.device), obj_labels]
         batch_mlvl_positional_encodings = self.positional_encoding.points_to_enc(
             obj_center, img_shapes[obj_img_inds])
         query = self.query_proj(
@@ -441,9 +454,11 @@ class DefromPnPHead(BaseDenseHead):
         score_pred = self.score_branch(output).squeeze(-1)  # (num_obj, )
 
         output_ = self.pred_fc(output)
-        dim_enc = self.dim_branch(output_).reshape(num_obj, self.num_classes, 3)
-        # (num_obj, 3)
-        dim_enc = dim_enc[torch.arange(num_obj, device=dim_enc.device), obj_labels]
+        dim_enc = self.dim_branch(output_)
+        if not self.dim_cls_agnostic:
+            dim_enc = dim_enc.reshape(
+                num_obj, self.num_classes, 3
+            )[torch.arange(num_obj, device=dim_enc.device), obj_labels]
         dim_dec = self.dim_coder.decode(dim_enc, obj_labels)
 
         if self.pred_velo:
@@ -796,7 +811,7 @@ class DefromPnPHead(BaseDenseHead):
             cls_score.permute(0, 2, 3, 1).reshape(-1, self.num_classes)
             for cls_score in mlvl_cls_score], dim=0)
         flatten_center = torch.cat([
-            center.permute(0, 2, 3, 1).reshape(-1, 2)
+            center.permute(0, 2, 3, 1).reshape(-1, center.size(1))
             for center in mlvl_center], dim=0)
         flatten_centerness = torch.cat([
             centerness.permute(0, 2, 3, 1).reshape(-1)
@@ -1134,6 +1149,7 @@ def obj_sampler(num_obj_samples,
     prob /= prob.sum().clamp(min=eps)
     prob_uniform = fg_mask / fg_mask_count.clamp(min=1)  # uniform
     prob_mix = prob_uniform * uniform_mix_ratio + prob * (1 - uniform_mix_ratio)
+    
     if fg_mask_count > 0:
         sample_point_inds_uniform = torch.multinomial(
             prob_uniform, num_uniform_samples, replacement=False)
@@ -1143,20 +1159,20 @@ def obj_sampler(num_obj_samples,
             (sample_point_inds_uniform, sample_point_inds_replace), dim=0)
         sample_gt_inds = flatten_gt_inds[sample_point_inds]
         sample_prob_weights = prob[sample_point_inds] / prob_mix[sample_point_inds]
-
+        
         gt_mask = sample_gt_inds == torch.arange(
             sample_gt_inds.max() + 1, device=sample_gt_inds.device)[:, None]  # (num_gt, num_obj_sample)
-
+        
         gt_prob_sum = (sample_prob_weights * gt_mask).sum(dim=1)
         gt_weights = 1 / gt_prob_sum.clamp(min=eps)
         sample_weights = sample_prob_weights * gt_weights[sample_gt_inds]
         sample_weights /= sample_weights.mean().clamp(min=eps)
-
+       
         gt_counts = torch.count_nonzero(gt_mask, dim=1)
         gt_weights = 1 / gt_counts.clamp(min=1)
         sample_uniform_weights = gt_weights[sample_gt_inds]
         sample_uniform_weights /= sample_uniform_weights.mean().clamp(min=eps)
-
+        
     else:
         sample_point_inds = sample_gt_inds = flatten_gt_inds[[]]
         sample_weights = sample_uniform_weights = prob[[]]

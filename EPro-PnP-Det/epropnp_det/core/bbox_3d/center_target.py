@@ -23,7 +23,8 @@ class VolumeCenter(object):
                  render_stride=4,
                  occlusion_factor=0.0,
                  get_bbox_2d=False,
-                 min_box_size=4.0):
+                 min_box_size=4.0,
+                 max_gpu_obj=-1):
         if base_mesh['type'] == 'ellipsoid':
             self.base_mesh = ico_sphere(base_mesh.get('ico_sphere_level', 4))
         elif base_mesh['type'] == 'box':
@@ -36,6 +37,7 @@ class VolumeCenter(object):
         self.occlusion_factor = occlusion_factor
         self.rend_bbox_2d = get_bbox_2d
         self.min_box_size = min_box_size
+        self.max_gpu_obj = max_gpu_obj
 
     def get_centers_2d(self, bboxes_2d, bboxes_3d, obj_img_inds, img_dense_x2d_small, img_dense_x2d_mask_small,
                        cam_intrinsic, max_shape):
@@ -124,9 +126,20 @@ class VolumeCenter(object):
         zbuf = frags.zbuf  # (num_img, h_rend, w_rend, faces_per_pixel)
 
         # =====post proc=====
+        if num_obj > self.max_gpu_obj > 0:
+            bboxes_2d = bboxes_2d.cpu()
+            zbuf = zbuf.cpu()
+            pix_to_face = pix_to_face.cpu()
+            img_dense_x2d_small = img_dense_x2d_small.cpu()
+            img_dense_x2d_mask_small = img_dense_x2d_mask_small.cpu()
+            pad_shape = pad_shape.cpu()
+            obj_img_inds_new = obj_img_inds_new.cpu()
         centers_2d, bboxes_2d, valid_mask = self.post_proc(
             zbuf, pix_to_face, img_dense_x2d_small, img_dense_x2d_mask_small,
             pad_shape, num_obj, obj_img_inds_new, bboxes_2d, fn)
+        centers_2d = centers_2d.to(device)
+        bboxes_2d = bboxes_2d.to(device)
+        valid_mask = valid_mask.to(device)
 
         # masking & to list
         centers_2d = centers_2d[valid_mask]

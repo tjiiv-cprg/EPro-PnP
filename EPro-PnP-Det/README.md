@@ -73,6 +73,8 @@ Here are some of our recent updates (mainly hyperparameter tuning) aiming at imp
 | :--- | :--- | :---: | :--- |
 | [epropnp_det_v1b_220312](configs/epropnp_det_v1b_220312.py) | Compact network (in supplementary), N=128 | ✗ | 0.434 (Val) |
 | [epropnp_det_v1b_220312](configs/epropnp_det_v1b_220312.py) | +TTA | ✓ | 0.446 (Val) |
+| [epropnp_det_v1b_220411](configs/epropnp_det_v1b_220411.py) | K=128, adjust loss weight, better class handling | ✗ | 0.444 (Val) |
+| [epropnp_det_v1b_220411](configs/epropnp_det_v1b_220411.py) | +TTA | ✓ | 0.453 (Val) |
 
 ## Test
 

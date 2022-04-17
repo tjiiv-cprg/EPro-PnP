@@ -48,6 +48,7 @@ class FCOSEmbHead(AnchorFreeHead):
                  center_sampling=True,
                  center_sample_radius=1.5,
                  center_error_scale=0.2,
+                 offset_cls_agnostic=True,
                  dcn_on_last_conv=True,
                  conv_bias='auto',
                  conv_cfg=None,
@@ -68,6 +69,7 @@ class FCOSEmbHead(AnchorFreeHead):
         self.center_sampling = center_sampling
         self.center_sample_radius = center_sample_radius
         self.center_error_scale = center_error_scale
+        self.offset_cls_agnostic = offset_cls_agnostic
         self.cls_branch = cls_branch
         self.centerness_branch = centerness_branch
         self.offset_branch = offset_branch
@@ -101,7 +103,10 @@ class FCOSEmbHead(AnchorFreeHead):
 
         self.conv_cls = nn.Conv2d(self.cls_branch[-1], self.num_classes, 1)
         self.conv_centerness = nn.Conv2d(self.centerness_branch[-1], 1, 1)
-        self.conv_offset = nn.Conv2d(self.offset_branch[-1], 2, 1)
+        self.conv_offset = nn.Conv2d(
+            self.offset_branch[-1],
+            2 if self.offset_cls_agnostic else self.num_classes * 2,
+            1)
         self.conv_emb = ConvModule(
             self.emb_branch[-1],
             self.emb_channels,
@@ -183,8 +188,13 @@ class FCOSEmbHead(AnchorFreeHead):
         for conv_offset_prev_layer in self.conv_offset_prev:
             offset_feat = conv_offset_prev_layer(offset_feat)
         points = self._get_points_single(x.shape[-2:], stride, x.dtype, x.device)  # (h * w, 2)
-        offset = self.conv_offset(offset_feat) * stride  # (num_img, 2, h, w)
-        center = offset + points.reshape(h, w, 2).permute(2, 0, 1)  # (num_img, 2, h, w)
+        offset = self.conv_offset(offset_feat) * stride
+        if self.offset_cls_agnostic:
+            center = offset + points.reshape(h, w, 2).permute(2, 0, 1)  # (num_img, 2, h, w)
+        else:
+            center = (offset.reshape(num_img, self.num_classes, 2, h, w)
+                      + points.reshape(h, w, 2).permute(2, 0, 1)
+                      ).reshape(num_img, self.num_classes * 2, h, w)
         return cls_score, center, centerness, obj_emb, points
 
     def loss(self,
@@ -206,7 +216,10 @@ class FCOSEmbHead(AnchorFreeHead):
             flatten_labels,
             avg_factor=num_pos_reduce)
 
-        pos_center = flatten_center[pos_inds]
+        if self.offset_cls_agnostic:
+            pos_center = flatten_center[pos_inds]
+        else:
+            pos_center = flatten_center.reshape(-1, self.num_classes, 2)[pos_inds, flatten_labels[pos_inds]]
         pos_centerness = flatten_centerness[pos_inds]
         pos_gt_inds = flatten_gt_inds[pos_inds]
 
@@ -365,9 +378,8 @@ class FCOSEmbHead(AnchorFreeHead):
         xs = xs[:, None].expand(num_points, num_gts)
         ys = ys[:, None].expand(num_points, num_gts)
 
-        delta_xs = (xs - centers2d[..., 0])[..., None]
-        delta_ys = (ys - centers2d[..., 1])[..., None]
-        delta_xys = torch.cat((delta_xs, delta_ys), dim=-1)
+        delta_xys = torch.stack(((xs - centers2d[..., 0]),
+                                 (ys - centers2d[..., 1])), dim=-1)
 
         left = xs - gt_bboxes[..., 0]
         right = gt_bboxes[..., 2] - xs
@@ -411,18 +423,15 @@ class FCOSEmbHead(AnchorFreeHead):
             & (max_regress_distance <= regress_ranges[..., 1]))
 
         # center-based criterion to deal with ambiguity
-        dists = torch.sqrt(torch.sum(delta_xys**2, dim=-1))
-        dists[inside_gt_bbox_mask == 0] = INF
-        dists[inside_regress_range == 0] = INF
+        dists = delta_xys.norm(dim=-1)
+        dists[~inside_gt_bbox_mask] = INF
+        dists[~inside_regress_range] = INF
         min_dist, min_dist_inds = dists.min(dim=1)
 
         labels = gt_labels[min_dist_inds]
         labels[min_dist == INF] = self.num_classes  # set as BG
 
-        delta_xys = delta_xys[range(num_points), min_dist_inds]
-        relative_dists = torch.sqrt(
-            torch.sum(delta_xys**2,
-                      dim=-1)) / (1.414 * stride[:, 0])
+        relative_dists = min_dist / (1.414 * stride[:, 0])
         # [N, 1] / [N, 1]
         centerness_targets = torch.exp(-self.centerness_alpha * relative_dists)
 

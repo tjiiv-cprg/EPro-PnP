@@ -4,7 +4,7 @@
 <br>
 In CVPR 2022 (Oral). [[paper](https://arxiv.org/pdf/2203.13254.pdf)]
 <br>
-[Hansheng Chen](https://lakonik.github.io/)\*<sup>1,2</sup>, [Pichao Wang](https://wangpichao.github.io/)†<sup>2</sup>, [Fan Wang](https://scholar.google.com/citations?user=WCRGTHsAAAAJ&hl=en)<sup>2</sup>, [Wei Tian](https://www.researchgate.net/scientific-contributions/Wei-Tian-2115916080)†<sup>1</sup>, [Lu Xiong](https://www.researchgate.net/scientific-contributions/Lu-Xiong-71708073)<sup>1</sup>, [Hao Li](https://scholar.google.com/citations?user=pHN-QIwAAAAJ&hl=zh-CN)<sup>2</sup>
+[Hansheng Chen](https://lakonik.github.io/)\*<sup>1,2</sup>, [Pichao Wang](https://wangpichao.github.io/)†<sup>2</sup>, [Fan Wang](https://scholar.google.com/citations?user=WCRGTHsAAAAJ&hl=en)<sup>2</sup>, [Wei Tian](https://scholar.google.com/citations?user=aYKQn88AAAAJ&hl=en)†<sup>1</sup>, [Lu Xiong](https://www.researchgate.net/scientific-contributions/Lu-Xiong-71708073)<sup>1</sup>, [Hao Li](https://scholar.google.com/citations?user=pHN-QIwAAAAJ&hl=zh-CN)<sup>2</sup>
 
 <sup>1</sup>Tongji University, <sup>2</sup>Alibaba Group
 <br>
