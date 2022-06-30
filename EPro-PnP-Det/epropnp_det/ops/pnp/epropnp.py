@@ -111,11 +111,14 @@ class EProPnPBase(torch.nn.Module, metaclass=ABCMeta):
 
         Returns:
             Tuple:
-                pose_opt (Tensor): Shape (num_obj, 4 or 7), LM solution
+                pose_opt (Tensor): Shape (num_obj, 4 or 7), PnP solution y*
+                cost (Tensor | None): Shape (num_obj, ), is not None when with_cost=True
+                pose_opt_plus (Tensor | None): Shape (num_obj, 4 or 7), y* + Δy, used in derivative
+                    regularization loss, is not None when with_pose_opt_plus=True, can be backpropagated
                 pose_samples (Tensor): Shape (mc_samples, num_obj, 4 or 7)
-                pose_sample_logweights (Tensor): Shape (mc_samples, num_obj), differentiable
-                cost_init (Tensor | None): Shape (num_obj, ), is None when pose_init is None,
-                    also differentiable
+                pose_sample_logweights (Tensor): Shape (mc_samples, num_obj), can be backpropagated
+                cost_init (Tensor | None): Shape (num_obj, ), is None when pose_init is None, can be
+                    backpropagated
         """
         if self.normalize:
             transform, x3d, pose_init = pnp_normalize(x3d, pose_init, detach_transformation=True)
