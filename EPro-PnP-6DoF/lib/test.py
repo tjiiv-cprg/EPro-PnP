@@ -109,20 +109,21 @@ def test(epoch, cfg, data_loader, model, obj_vtx, obj_info, criterions):
         with torch.no_grad():
             (noc, w2d, scale), pred_trans = model(inp_var)
             w2d = w2d.flatten(2)
-            # we use an alternative to standard softmax, i.e., normalizing the mean before exponential map
+            # Due to a legacy design decision, we use an alternative to standard softmax, i.e., normalizing
+            # the mean before exponential map.
             w2d = (w2d - w2d.mean(dim=-1, keepdim=True)
                    - math.log(w2d.size(-1))).exp().reshape(bs, 2, 64, 64) * scale[..., None, None]
+            # To use standard softmax, comment out the two lines above and uncomment the line below:
+            # w2d = w2d.softmax(dim=-1).reshape(bs, 2, 64, 64) * scale[..., None, None]
 
         if i % cfg.test.disp_interval == 0:
-            # input image
+            # display input image
             inp_rgb = (inp[0].cpu().numpy().copy() * 255)[[2, 1, 0], :, :].astype(np.uint8)
             cfg.writer.add_image('input_image', inp_rgb, i)
             cv2.imwrite(os.path.join(vis_dir, '{}_inp.png'.format(i)), inp_rgb.transpose(1,2,0)[:, :, ::-1])
             if 'rot' in cfg.pytorch.task.lower():
-                # coordinates map
+                # display coordinates map
                 pred_coor = noc[0].data.cpu().numpy().copy()
-
-                # write to image
                 pred_coor[0] = im_norm_255(pred_coor[0])
                 pred_coor[1] = im_norm_255(pred_coor[1])
                 pred_coor[2] = im_norm_255(pred_coor[2])
@@ -131,9 +132,7 @@ def test(epoch, cfg, data_loader, model, obj_vtx, obj_info, criterions):
                 plt.imsave(os.path.join(vis_dir, '{}_coor_y_pred.png'.format(i)), pred_coor[1])
                 plt.imsave(os.path.join(vis_dir, '{}_coor_z_pred.png'.format(i)), pred_coor[2])
                 plt.imsave(os.path.join(vis_dir, '{}_coor_xyz.png'.format(i)), pred_coor.transpose(1, 2, 0))
-
-                # write to image
-                # confidence map
+                # display confidence map
                 pred_conf = w2d[0].mean(dim=0).data.cpu().numpy().copy()
                 pred_conf = (im_norm_255(pred_conf)).astype(np.uint8)
                 cfg.writer.add_image('test_conf_pred', np.expand_dims(pred_conf, axis=0), i)
@@ -149,21 +148,11 @@ def test(epoch, cfg, data_loader, model, obj_vtx, obj_info, criterions):
         if 'rot' in cfg.pytorch.task.lower():
             # building 2D-3D correspondences
             x3d = noc.permute(0, 2, 3, 1) * dim[:, None, None, :]
-
-            pred_conf = w2d.mean(dim=1)  # (n, h, w)
-            # pred_conf_min = pred_conf.reshape(bs, -1).min(dim=-1)[0][:, None, None]  # (n, 1, 1)
-            # pred_conf_max = pred_conf.reshape(bs, -1).max(dim=-1)[0][:, None, None]  # (n, 1, 1)
-            # pred_conf = (pred_conf - pred_conf_min) / (pred_conf_max - pred_conf_min)  # (n, h, w)
-
             w2d = w2d.permute(0, 2, 3, 1)  # (n, h, w, 2)
 
             s = s_box.to(torch.int64)  # (n, )
             wh_begin = c_box.to(torch.int64) - s[:, None] / 2.  # (n, 2)
             wh_unit = s.to(torch.float32) / cfg.dataiter.out_res  # (n, )
-
-            pred_conf_np = pred_conf.cpu().numpy()
-            valid_mask = pred_conf_np >= np.quantile(pred_conf_np.reshape(bs, -1), 0.8,
-                                                     axis=1, keepdims=True)[..., None]
 
             wh_arange = torch.arange(cfg.dataiter.out_res, device=x3d.device, dtype=torch.float32)
             y, x = torch.meshgrid(wh_arange, wh_arange)  # (h, w)
@@ -187,11 +176,14 @@ def test(epoch, cfg, data_loader, model, obj_vtx, obj_info, criterions):
             dist_coeffs = np.zeros((4, 1), dtype=np.float32)  # Assuming no lens distortion
 
             # for fair comparison we use EPnP initialization
+            pred_conf_np = w2d.mean(dim=1).cpu().numpy()  # (n, h, w)
+            binary_mask = pred_conf_np >= np.quantile(pred_conf_np.reshape(bs, -1), 0.8,
+                                                      axis=1, keepdims=True)[..., None]
             R_quats = []
             T_vectors = []
             x2d_np = x2d.cpu().numpy()
             x3d_np = x3d.cpu().numpy()
-            for x2d_np_, x3d_np_, mask_np_ in zip(x2d_np, x3d_np, valid_mask):
+            for x2d_np_, x3d_np_, mask_np_ in zip(x2d_np, x3d_np, binary_mask):
                 _, R_vector, T_vector = cv2.solvePnP(
                     x3d_np_[mask_np_], x2d_np_[mask_np_], cam_intrinsic_np, dist_coeffs, flags=cv2.SOLVEPNP_EPNP)
                 q = R.from_rotvec(R_vector.reshape(-1)).as_quat()[[3, 0, 1, 2]]

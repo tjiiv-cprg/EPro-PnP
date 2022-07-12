@@ -85,12 +85,12 @@ def train(epoch, cfg, data_loader, model, obj_info, criterions, optimizer=None):
             logger.info("time for a batch forward of resnet model is {}".format(T_end))
 
         if i % cfg.test.disp_interval == 0:
-            # input image
+            # display input image
             inp_rgb = (inp[0].cpu().numpy().copy() * 255)[::-1, :, :].astype(np.uint8)
             cfg.writer.add_image('input_image', inp_rgb, i)
             cv2.imwrite(os.path.join(vis_dir, '{}_inp.png'.format(i)), inp_rgb.transpose(1,2,0)[:, :, ::-1])
             if 'rot' in cfg.pytorch.task.lower():
-                # coordinates map
+                # display coordinates map
                 pred_coor = noc[0].data.cpu().numpy().copy()
                 pred_coor[0] = im_norm_255(pred_coor[0])
                 pred_coor[1] = im_norm_255(pred_coor[1])
@@ -113,7 +113,7 @@ def train(epoch, cfg, data_loader, model, obj_info, criterions, optimizer=None):
                 cv2.imwrite(os.path.join(vis_dir, '{}_coor_x_gt.png'.format(i)), gt_coor[0])
                 cv2.imwrite(os.path.join(vis_dir, '{}_coor_y_gt.png'.format(i)), gt_coor[1])
                 cv2.imwrite(os.path.join(vis_dir, '{}_coor_z_gt.png'.format(i)), gt_coor[2])
-                # confidence map
+                # display confidence map
                 pred_conf = w2d[0].reshape(2, -1).softmax(dim=-1)
                 pred_conf = pred_conf.mean(dim=0).reshape(64, 64).data.cpu().numpy().copy()
                 pred_conf = (im_norm_255(pred_conf)).astype(np.uint8)
@@ -160,8 +160,11 @@ def train(epoch, cfg, data_loader, model, obj_info, criterions, optimizer=None):
             x3d = x3d.flatten(2).transpose(-1, -2)[batch_inds, sample_inds]
             x2d = x2d.flatten(2).transpose(-1, -2)[batch_inds, sample_inds]
             w2d = w2d.flatten(2).transpose(-1, -2)[batch_inds, sample_inds]
-            # we use an alternative to standard softmax, i.e., normalizing the mean before exponential map
+            # Due to a legacy design decision, we use an alternative to standard softmax, i.e., normalizing
+            # the mean before exponential map.
             w2d = (w2d - w2d.mean(dim=1, keepdim=True) - math.log(w2d.size(1))).exp() * scale[:, None, :]
+            # To use standard softmax, comment out the line above and uncomment the line below:
+            # w2d = w2d.softmax(dim=1) * scale[:, None, :]
 
             allowed_border = 30 * wh_unit  # (n, )
             camera = PerspectiveCamera(

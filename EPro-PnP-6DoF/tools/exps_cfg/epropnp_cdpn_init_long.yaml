@@ -79,7 +79,6 @@ train:
   train_batch_size: 32
   lr_backbone: 1e-4
   lr_rot_head: 1e-4
-  lr_trans_head: 1e-4
   lr_epoch_step:
   - 100
   - 200
@@ -96,7 +95,6 @@ train:
 loss:
   # coordinate regression loss
   rot_loss_type: 'L1'
-  rot_mask_loss: True
   rot_loss_weight: 1
   # Monte Carlo loss
   mc_loss_weight: 0.02  # this value is small because the actual scale of the loss is large
