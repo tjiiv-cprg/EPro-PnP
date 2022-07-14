@@ -176,7 +176,7 @@ def test(epoch, cfg, data_loader, model, obj_vtx, obj_info, criterions):
             dist_coeffs = np.zeros((4, 1), dtype=np.float32)  # Assuming no lens distortion
 
             # for fair comparison we use EPnP initialization
-            pred_conf_np = w2d.mean(dim=1).cpu().numpy()  # (n, h, w)
+            pred_conf_np = w2d.mean(dim=-1).cpu().numpy()  # (n, h, w)
             binary_mask = pred_conf_np >= np.quantile(pred_conf_np.reshape(bs, -1), 0.8,
                                                       axis=1, keepdims=True)[..., None]
             R_quats = []
