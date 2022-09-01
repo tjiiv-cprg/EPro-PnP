@@ -33,6 +33,10 @@ We release two distinct networks trained with EPro-PnP:
 - **[EPro-PnP-Det](EPro-PnP-Det) for 3D object detection**
 
   <img src="EPro-PnP-Det/resources/viz.gif" width="500" alt=""/>
+  
+- **EPro-PnP-Det v2 for 3D object detection**
+
+  Coming soon!
 
 ## Use EPro-PnP in Your Own Model
 
