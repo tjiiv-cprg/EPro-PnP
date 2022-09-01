@@ -25,7 +25,7 @@ pose distribution.
 
 ## Models
 
-We release two distinct networks trained with EPro-PnP:
+Models used in the original paper:
 
 - **[EPro-PnP-6DoF](EPro-PnP-6DoF) for 6DoF pose estimation**<br>
   <img src="EPro-PnP-6DoF/viz.gif" width="500" alt=""/>
@@ -33,10 +33,24 @@ We release two distinct networks trained with EPro-PnP:
 - **[EPro-PnP-Det](EPro-PnP-Det) for 3D object detection**
 
   <img src="EPro-PnP-Det/resources/viz.gif" width="500" alt=""/>
-  
+
+New models:
+
 - **EPro-PnP-Det v2 for 3D object detection**
 
-  Coming soon!
+  At the time of submission (Aug 30, 2022), EPro-PnP-Det v2 **ranks 1st** among all camera-based single-frame object detection models on the [official nuScenes benchmark](https://www.nuscenes.org/object-detection?externalData=no&mapData=no&modalities=Camera) (test split, without extra data). Code (and maybe a technical report or paper) will be released.
+
+  | Method | Backbone | NDS | mAP | mATE | mASE | mAOE | mAVE | mAAE | Schedule |
+  | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+  | EPro-PnP-Det v2 | R101 | **0.490** | 0.423 | 0.547 | **0.236** | **0.302** | 1.071 | **0.123** | 12 ep |
+  | [PETR](https://github.com/megvii-research/petr) | Swin-B | 0.483 | **0.445** | 0.627 | 0.249 | 0.449 | 0.927 | 0.141 | 24 ep |
+  | [BEVDet-Base](https://github.com/HuangJunJie2017/BEVDet) | Swin-B | 0.482 | 0.422 | **0.529** | **0.236** | 0.395 | 0.979 | 0.152 | 20 ep |
+  | [PolarFormer](https://github.com/fudan-zvg/PolarFormer) | R101 | 0.470 | 0.415 | 0.657 | 0.263 | 0.405 | **0.911** | 0.139 | 24 ep |
+  | [BEVFormer-S](https://github.com/zhiqi-li/BEVFormer) | R101 | 0.462 | 0.409 | 0.650 | 0.261 | 0.439 | 0.925 | 0.147 | 24 ep |
+  | [PETR](https://github.com/megvii-research/petr) | R101 | 0.455 | 0.391 | 0.647 | 0.251 | 0.433 | 0.933 | 0.143 | 24 ep |
+  | [EPro-PnP-Det v1](EPro-PnP-Det) | R101 | 0.453 | 0.373 | 0.605 | 0.243 | 0.359 | 1.067 | 0.124 | 12 ep | 
+  | [PGD](https://github.com/open-mmlab/mmdetection3d) | R101 | 0.448 | 0.386 | 0.626 | 0.245 | 0.451 | 1.509 | 0.127 | 24+24 ep |
+  | [FCOS3D](https://github.com/open-mmlab/mmdetection3d) | R101 | 0.428 | 0.358 | 0.690 | 0.249 | 0.452 | 1.434 | 0.124 | - |
 
 ## Use EPro-PnP in Your Own Model
 
