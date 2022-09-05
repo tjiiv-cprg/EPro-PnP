@@ -34,7 +34,7 @@ default_timers.add_timer('post-proc. time')
 
 
 @HEADS.register_module()
-class DefromPnPHead(BaseDenseHead):
+class DeformPnPHead(BaseDenseHead):
 
     def __init__(self,
                  num_classes=10,
@@ -146,7 +146,7 @@ class DefromPnPHead(BaseDenseHead):
                  norm_cfg=None,
                  train_cfg=None,
                  test_cfg=None):
-        super(DefromPnPHead, self).__init__()
+        super(DeformPnPHead, self).__init__()
         self.num_classes = num_classes
         self.in_channels = in_channels
         self.lvl_feat_channels = lvl_feat_channels
@@ -338,7 +338,7 @@ class DefromPnPHead(BaseDenseHead):
                 if self.training:
                     self.train_cfg_backup[key] = rgetattr(self, key)
                 rsetattr(self, key, value)
-        super(DefromPnPHead, self).train(mode)
+        super(DeformPnPHead, self).train(mode)
         return self
 
     def forward_dense_single(self, x):
