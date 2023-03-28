@@ -1,5 +1,7 @@
 # EPro-PnP
 
+**NEWS:** An updated journal version of this paper has been released [here](https://arxiv.org/abs/2303.12787). The new code will be made available soon.
+
 **EPro-PnP: Generalized End-to-End Probabilistic Perspective-n-Points for Monocular Object Pose Estimation**
 <br>
 In CVPR 2022 (Oral, **Best Student Paper**). [[paper](https://arxiv.org/pdf/2203.13254.pdf)][[video](https://www.youtube.com/watch?v=TonBodQ6EUU)]
@@ -38,7 +40,7 @@ New models:
 
 - **EPro-PnP-Det v2 for 3D object detection**
 
-  At the time of submission (Aug 30, 2022), EPro-PnP-Det v2 **ranks 1st** among all camera-based single-frame object detection models on the [official nuScenes benchmark](https://www.nuscenes.org/object-detection?externalData=no&mapData=no&modalities=Camera) (test split, without extra data). Code (and maybe a technical report or paper) will be released.
+  At the time of submission (Aug 30, 2022), EPro-PnP-Det v2 **ranks 1st** among all camera-based single-frame object detection models on the [official nuScenes benchmark](https://www.nuscenes.org/object-detection?externalData=no&mapData=no&modalities=Camera) (test split, without extra data). The new paper has been released [here](https://arxiv.org/abs/2303.12787).
 
   | Method | Backbone | NDS | mAP | mATE | mASE | mAOE | mAVE | mAAE | Schedule |
   | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
