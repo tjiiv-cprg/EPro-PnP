@@ -4,7 +4,7 @@
 
 This is the official PyTorch implementation of End-to-End Probabilistic Perspective-n-Points for 6DoF object pose estimation. [[paper](https://arxiv.org/pdf/2203.13254.pdf)]
 
-The code is modified from the [official implementation of CDPN](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi).
+The code is modified from the [official implementation of CDPN](https://github.com/LZGMatrix/CDPN_ICCV2019_ZhigangLi), and is used for benchmarking only. **We will not maintain this code except for bug fixes.**
 
 ## Introduction
 
@@ -84,6 +84,7 @@ To start training, enter the directory `EPro-PnP-6DoF/tools`, and run:
 ```bash
 python main.py --cfg /PATH/TO/CONFIG  # configs are located in EPro-PnP-6DoF/tools/exp_cfg
 ```
+
 By default GPU 0 is used, you can set the environment variable `CUDA_VISIBLE_DEVICES` to change this behavior.
 
 Checkpoints, logs and visualizations will be saved to `EPro-PnP-6DoF/exp`. You can run TensorBoard to plot the logs:
