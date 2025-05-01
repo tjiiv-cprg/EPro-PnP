@@ -85,4 +85,12 @@ If you find this project useful in your research, please consider citing:
   booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)}, 
   year = {2022}
 }
+
+@article{epropnpv2,
+  author={Chen, Hansheng and Tian, Wei and Wang, Pichao and Wang, Fan and Xiong, Lu and Li, Hao},
+  journal={IEEE Transactions on Pattern Analysis and Machine Intelligence}, 
+  title={EPro-PnP: Generalized End-to-End Probabilistic Perspective-N-Points for Monocular Object Pose Estimation}, 
+  year={2024},
+  doi={10.1109/TPAMI.2024.3354997}
+}
 ```
